@@ -84,7 +84,7 @@ def main(batch_size, liger, results_file):
     except InterruptTraining:
         pass
     except torch.cuda.OutOfMemoryError:
-        with open("./results.csv", "a") as f:
+        with open(results_file, "a") as f:
             f.write(f"{batch_size}, OOM\n")
             return
 
