@@ -2,6 +2,7 @@ import sys
 import time
 
 from datasets import load_dataset
+from liger_kernel.transformers import apply_liger_kernel_to_llama
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import TrainingArguments, Trainer
@@ -29,12 +30,17 @@ class InterruptableTrainer(Trainer):
 
 
 def tokenize_function(tokenizer, examples):
-    tokenized = tokenizer(examples["text"], truncation=True, padding="max_length", max_length=2048)
+    tokenized = tokenizer(
+        examples["text"],
+        truncation=True,
+        padding="max_length",
+        max_length=512
+    )
     tokenized["labels"] = tokenized["input_ids"][:]
     return tokenized
 
 
-def main(batch_size):
+def main(batch_size, liger, results_file):
     dataset_source = "timdettmers/openassistant-guanaco"
     dataset = load_dataset(dataset_source)
 
@@ -42,6 +48,8 @@ def main(batch_size):
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(base_model)
+    if liger:
+        apply_liger_kernel_to_llama()
     model.gradient_checkpointing_enable()
 
     args = TrainingArguments(
@@ -87,7 +95,7 @@ def main(batch_size):
             int(stats["active_bytes.all.peak"] / (1024 * 1024)),
             int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
         ))
-    with open("./results.csv", "a") as f:
+    with open(results_file, "a") as f:
         f.write(f"{batch_size}, ")
         for memory_usage in memory_usages:
             active_peak_mib, reserved_peak_mib = memory_usage
@@ -96,4 +104,4 @@ def main(batch_size):
 
 
 if __name__ == "__main__":
-    main(int(sys.argv[2]))
+    main(int(sys.argv[2]), sys.argv[3] == "True", sys.argv[4])

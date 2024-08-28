@@ -1,8 +1,18 @@
+import sys
 from itertools import count
 
 import subprocess
 
-with open("./results.csv", "w") as f:
+
+liger = "--liger" in sys.argv
+
+if liger:
+    results_file = "./results-liger.csv"
+else:
+    results_file = "./results-no-liger.csv"
+
+
+with open(results_file, "w") as f:
     pass
 
 for batch_size in count(1):
@@ -15,7 +25,9 @@ for batch_size in count(1):
                 "deepspeed",
                 "measure_memory_usage_for_batch_size.py",
                 "--",
-                str(batch_size)
+                str(batch_size),
+                str(liger),
+                results_file,
             ])
             succeeded = True
         except subprocess.CalledProcessError as exc:
