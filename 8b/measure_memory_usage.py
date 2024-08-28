@@ -23,6 +23,7 @@ for batch_size in count(1):
         try:
             subprocess.check_call([
                 "deepspeed",
+                "--num-gpus=8",
                 "measure_memory_usage_for_batch_size.py",
                 "--",
                 str(batch_size),
