@@ -1,5 +1,4 @@
 import sys
-from itertools import count
 
 import subprocess
 
@@ -15,7 +14,7 @@ else:
 with open(results_file, "w") as f:
     pass
 
-for batch_size in count(1):
+for batch_size in (1, 8, 16, 32, 48, 64):
     succeeded = False
     tries = 0
     while not succeeded and tries < 5:
@@ -23,7 +22,7 @@ for batch_size in count(1):
         try:
             subprocess.check_call([
                 "deepspeed",
-                "--num_gpus=8",
+                "--num_gpus=4",
                 "measure_memory_usage_for_batch_size.py",
                 "--",
                 str(batch_size),

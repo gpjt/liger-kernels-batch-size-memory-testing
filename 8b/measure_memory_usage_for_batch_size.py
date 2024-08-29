@@ -89,7 +89,7 @@ def main(batch_size, liger, results_file):
             return
 
     memory_usages = []
-    for gpu in range(8):
+    for gpu in range(4):
         stats = torch.cuda.memory_stats(device=gpu)
         memory_usages.append((
             int(stats["active_bytes.all.peak"] / (1024 * 1024)),
