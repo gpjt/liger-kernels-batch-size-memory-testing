@@ -3,3 +3,5 @@ datasets
 transformers[torch]
 deepspeed
 liger-kernel
+notebook
+matplotlib
